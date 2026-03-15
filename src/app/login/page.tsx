@@ -36,7 +36,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-stone-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-8 w-full max-w-sm">
+      <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-10 w-full max-w-md">
         <div className="text-center mb-6">
           <Link href="/" className="text-2xl font-bold text-emerald-700 font-serif">Kazi EA</Link>
           <p className="text-stone-500 text-sm mt-1">Sign in to your account</p>
@@ -63,7 +63,7 @@ export default function LoginPage() {
               type="email" required value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="input-base"
+              className="input-base !py-3 !text-base"
             />
           </div>
           <div>
@@ -72,7 +72,7 @@ export default function LoginPage() {
               type="password" required value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="input-base"
+              className="input-base !py-3 !text-base"
             />
           </div>
           <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2 mt-1">
