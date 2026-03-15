@@ -25,6 +25,7 @@ export default function ApplicationsPage() {
   const [selected, setSelected] = useState<any | null>(null)
   const [updatingStatus, setUpdatingStatus] = useState(false)
   const [filter, setFilter] = useState('all')
+  const [openingCv, setOpeningCv] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -47,7 +48,7 @@ export default function ApplicationsPage() {
 
       if (!jobs?.length) { setLoading(false); return }
 
-      const jobIds = jobs.map(j => j.id)
+      const jobIds = jobs.map((j: any) => j.id)
 
       const { data } = await supabase
         .from('applications')
@@ -80,11 +81,29 @@ export default function ApplicationsPage() {
       .eq('id', appId)
 
     if (error) { toast.error('Failed to update status'); setUpdatingStatus(false); return }
-
     setApplications(prev => prev.map(a => a.id === appId ? { ...a, status } : a))
     if (selected?.id === appId) setSelected((prev: any) => ({ ...prev, status }))
     toast.success(`Status updated to ${status}`)
     setUpdatingStatus(false)
+  }
+
+  const openCV = async (cvUrl: string) => {
+    setOpeningCv(true)
+    try {
+      const supabase = createClient()
+      // Extract path after /cvs/
+      const parts = cvUrl.split('/cvs/')
+      if (parts.length < 2) { window.open(cvUrl, '_blank'); setOpeningCv(false); return }
+      const path = decodeURIComponent(parts[1])
+      const { data, error } = await supabase.storage
+        .from('cvs')
+        .createSignedUrl(path, 60 * 60) // 1 hour
+      if (error || !data) { toast.error('Could not open CV — ' + (error?.message || '')); setOpeningCv(false); return }
+      window.open(data.signedUrl, '_blank')
+    } catch (e) {
+      toast.error('Could not open CV')
+    }
+    setOpeningCv(false)
   }
 
   const filtered = filter === 'all' ? applications : applications.filter(a => a.status === filter)
@@ -99,7 +118,6 @@ export default function ApplicationsPage() {
     <div className="min-h-screen bg-stone-50">
       <Navbar />
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* Header */}
         <div className="flex items-center gap-4 mb-6">
           <button onClick={() => router.push('/dashboard')} className="p-2 hover:bg-stone-100 rounded-lg text-stone-400">
             <ChevronLeft size={20} />
@@ -110,7 +128,6 @@ export default function ApplicationsPage() {
           </div>
         </div>
 
-        {/* Status filter tabs */}
         <div className="flex gap-2 mb-5 flex-wrap">
           {['all', ...STATUS_OPTIONS].map(s => (
             <button
@@ -132,12 +149,13 @@ export default function ApplicationsPage() {
 
         {filtered.length === 0 ? (
           <div className="text-center py-20 text-stone-400">
+            <FileText size={40} className="mx-auto mb-3 opacity-30" />
             <p className="text-lg font-medium mb-2">No applications yet</p>
             <p className="text-sm">When candidates apply to your jobs they'll appear here</p>
           </div>
         ) : (
           <div className="grid md:grid-cols-5 gap-4">
-            {/* Applications list */}
+            {/* List */}
             <div className="md:col-span-2 space-y-2">
               {filtered.map(app => (
                 <div
@@ -170,11 +188,11 @@ export default function ApplicationsPage() {
               ))}
             </div>
 
-            {/* Application detail */}
+            {/* Detail panel */}
             <div className="md:col-span-3">
               {selected ? (
                 <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden">
-                  {/* Applicant header */}
+                  {/* Header */}
                   <div className="p-6 border-b border-stone-100">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-center gap-4">
@@ -193,8 +211,6 @@ export default function ApplicationsPage() {
                           </p>
                         </div>
                       </div>
-
-                      {/* Status selector */}
                       <select
                         value={selected.status}
                         onChange={e => updateStatus(selected.id, e.target.value)}
@@ -208,7 +224,9 @@ export default function ApplicationsPage() {
                     </div>
                   </div>
 
+                  {/* Body */}
                   <div className="p-6 space-y-5 overflow-y-auto max-h-[calc(100vh-280px)]">
+
                     {/* Contact */}
                     <Section title="Contact">
                       <Row icon={Mail} label="Email" value={selected.seeker?.profile?.email} />
@@ -219,8 +237,18 @@ export default function ApplicationsPage() {
                       {selected.seeker?.linkedin_url && (
                         <div className="flex items-center gap-2">
                           <ExternalLink size={14} className="text-stone-400 flex-shrink-0" />
-                          <a href={selected.seeker.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-sm text-emerald-600 hover:underline truncate">
+                          <a href={selected.seeker.linkedin_url} target="_blank" rel="noopener noreferrer"
+                            className="text-sm text-emerald-600 hover:underline truncate">
                             LinkedIn Profile
+                          </a>
+                        </div>
+                      )}
+                      {selected.seeker?.portfolio_url && (
+                        <div className="flex items-center gap-2">
+                          <ExternalLink size={14} className="text-stone-400 flex-shrink-0" />
+                          <a href={selected.seeker.portfolio_url} target="_blank" rel="noopener noreferrer"
+                            className="text-sm text-emerald-600 hover:underline truncate">
+                            Portfolio / Website
                           </a>
                         </div>
                       )}
@@ -231,7 +259,9 @@ export default function ApplicationsPage() {
                       <Section title="Education">
                         <Row icon={GraduationCap} label="Degree" value={selected.seeker?.degree} />
                         <Row icon={GraduationCap} label="School" value={selected.seeker?.school} />
-                        {selected.seeker?.grad_year && <Row icon={GraduationCap} label="Graduated" value={selected.seeker.grad_year} />}
+                        {selected.seeker?.grad_year && (
+                          <Row icon={GraduationCap} label="Graduated" value={selected.seeker.grad_year} />
+                        )}
                       </Section>
                     )}
 
@@ -269,27 +299,32 @@ export default function ApplicationsPage() {
                     {/* CV */}
                     <Section title="CV / Resume">
                       {selected.seeker?.cv_url ? (
-                        <a
-                          href={selected.seeker.cv_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl p-4 hover:bg-emerald-100 transition-colors"
+                        <button
+                          onClick={() => openCV(selected.seeker.cv_url)}
+                          disabled={openingCv}
+                          className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl p-4 hover:bg-emerald-100 transition-colors w-full text-left"
                         >
-                          <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-700 font-bold text-xs">
+                          <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-700 font-bold text-xs flex-shrink-0">
                             CV
                           </div>
                           <div className="flex-1">
                             <p className="text-sm font-medium text-emerald-800">
                               {selected.seeker.cv_filename || 'View CV / Resume'}
                             </p>
-                            <p className="text-xs text-emerald-600">Click to open</p>
+                            <p className="text-xs text-emerald-600">
+                              {openingCv ? 'Opening...' : 'Click to open or download'}
+                            </p>
                           </div>
-                          <Download size={16} className="text-emerald-600" />
-                        </a>
+                          {openingCv
+                            ? <Loader2 size={16} className="text-emerald-600 animate-spin" />
+                            : <Download size={16} className="text-emerald-600" />
+                          }
+                        </button>
                       ) : (
-                        <p className="text-sm text-stone-400 italic">No CV attached</p>
+                        <p className="text-sm text-stone-400 italic">No CV attached to this application</p>
                       )}
                     </Section>
+
                   </div>
                 </div>
               ) : (
