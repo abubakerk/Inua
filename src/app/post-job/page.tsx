@@ -10,11 +10,11 @@ import type { Country, JobType, JobCategory } from '@/types'
 import { COUNTRIES, CATEGORIES, JOB_TYPES } from '@/lib/utils'
 
 const CITIES: Record<Country, string[]> = {
-  Kenya:    ['Nairobi', 'Mombasa', 'Kisumu', 'Nakuru', 'Eldoret', 'Thika', 'Malindi', 'Kitale', 'Garissa', 'Nyeri'],
-  Uganda:   ['Kampala', 'Entebbe', 'Jinja', 'Gulu', 'Mbarara', 'Mukono', 'Kasese', 'Masaka', 'Hoima', 'Lira'],
-  Tanzania: ['Dar es Salaam', 'Dodoma', 'Arusha', 'Zanzibar', 'Mwanza', 'Tanga', 'Morogoro', 'Mbeya', 'Kigoma', 'Tabora'],
-  Rwanda:   ['Kigali', 'Butare', 'Gitarama', 'Ruhengeri', 'Gisenyi', 'Byumba', 'Cyangugu', 'Kibungo', 'Kibuye', 'Rwamagana'],
-  Ethiopia: ['Addis Ababa', 'Dire Dawa', 'Bahir Dar', 'Gondar', 'Mekelle', 'Hawassa', 'Jimma', 'Adama', 'Harar', 'Dessie'],
+  Kenya: ['Nairobi','Mombasa','Kisumu','Nakuru','Eldoret','Thika','Malindi','Kitale','Garissa','Nyeri','Machakos','Meru','Kakamega','Kilifi','Lamu','Nanyuki','Embu','Kericho','Kisii','Migori','Homa Bay','Siaya','Bungoma','Naivasha','Muranga'],
+  Uganda: ['Kampala','Entebbe','Jinja','Gulu','Mbarara','Mukono','Kasese','Masaka','Hoima','Lira','Mbale','Fort Portal','Soroti','Arua','Kabale','Tororo','Iganga','Mityana','Masindi','Bushenyi','Ntungamo','Rukungiri','Kisoro','Moroto','Kitgum'],
+  Tanzania: ['Dar es Salaam','Dodoma','Arusha','Zanzibar City','Mwanza','Tanga','Morogoro','Mbeya','Kigoma','Tabora','Iringa','Moshi','Musoma','Shinyanga','Songea','Lindi','Mtwara','Singida','Sumbawanga','Bukoba','Geita','Njombe','Pemba','Kilosa','Babati'],
+  Rwanda: ['Kigali','Butare','Gitarama','Ruhengeri','Gisenyi','Byumba','Cyangugu','Kibungo','Kibuye','Rwamagana','Nyanza','Musanze','Rubavu','Rusizi','Kayonza','Kirehe','Ngoma','Bugesera','Rulindo','Gakenke','Gicumbi','Nyabihu','Huye','Muhanga','Kamonyi'],
+  Ethiopia: ['Addis Ababa','Dire Dawa','Bahir Dar','Gondar','Mekelle','Hawassa','Jimma','Adama','Harar','Dessie','Debre Birhan','Nekemte','Shashamane','Bishoftu','Arba Minch','Hosaena','Wolaita Sodo','Dilla','Axum','Lalibela','Jijiga','Gambela','Asosa','Debre Markos','Yirgalem'],
 }
 
 interface FieldProps {
