@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 import type { Country, JobType, JobCategory } from '@/types'
 import { COUNTRIES, CATEGORIES, JOB_TYPES } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/client'
 
 const CITIES: Record<Country, string[]> = {
   Kenya: ['Nairobi','Mombasa','Kisumu','Nakuru','Eldoret','Thika','Malindi','Kitale','Garissa','Nyeri','Machakos','Meru','Kakamega','Kilifi','Lamu','Nanyuki','Embu','Kericho','Kisii','Migori','Homa Bay','Siaya','Bungoma','Naivasha','Muranga'],
@@ -59,21 +60,48 @@ export default function PostJobPage() {
     if (!title || !description) { toast.error('Title and description are required'); return }
     setLoading(true)
 
-    const res = await fetch('/api/jobs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title, description, requirements,
-        country, city, type, category,
-        salary_min: salaryMin ? parseInt(salaryMin) : null,
-        salary_max: salaryMax ? parseInt(salaryMax) : null,
-        experience_years_min: parseInt(expYears),
-        application_deadline: deadline || null,
-      }),
+    const supabase = createClient()
+
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { toast.error('Please sign in first'); setLoading(false); router.push('/login'); return }
+
+    // Get employer profile
+    const { data: employer, error: empErr } = await supabase
+      .from('employer_profiles')
+      .select('id')
+      .eq('user_id', user.id)
+      .single()
+
+    if (empErr || !employer) {
+      toast.error('Employer profile not found. Make sure you registered as an employer.')
+      setLoading(false)
+      return
+    }
+
+    // Insert job directly via Supabase client
+    const { error } = await supabase.from('jobs').insert({
+      employer_id: employer.id,
+      title,
+      description,
+      requirements: requirements || null,
+      country,
+      city,
+      type,
+      category,
+      salary_min: salaryMin ? parseInt(salaryMin) : null,
+      salary_max: salaryMax ? parseInt(salaryMax) : null,
+      salary_currency: 'USD',
+      experience_years_min: parseInt(expYears) || 0,
+      application_deadline: deadline || null,
+      status: 'active',
     })
 
-    const data = await res.json()
-    if (!res.ok) { toast.error(data.error || 'Failed to post job'); setLoading(false); return }
+    if (error) {
+      toast.error(error.message)
+      setLoading(false)
+      return
+    }
 
     toast.success('Job posted successfully!')
     router.push('/dashboard')
@@ -88,7 +116,7 @@ export default function PostJobPage() {
           <p className="text-stone-500 text-sm mt-1">Reach thousands of qualified candidates across East Africa</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-stone-200 p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-stone-200 p-8 space-y-6">
           <Field label="Job title" required>
             <input
               className="input-base"
@@ -98,7 +126,7 @@ export default function PostJobPage() {
             />
           </Field>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-6">
             <Field label="Country" required>
               <select
                 className="input-base"
@@ -119,7 +147,7 @@ export default function PostJobPage() {
             </Field>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-6">
             <Field label="Job type" required>
               <select
                 className="input-base"
@@ -140,7 +168,7 @@ export default function PostJobPage() {
             </Field>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-6">
             <Field label="Min salary (USD/mo)">
               <input
                 type="number"
