@@ -1,5 +1,6 @@
-// src/app/page.tsx
 export const dynamic = 'force-dynamic'
+
+// src/app/page.tsx
 import { Suspense } from 'react'
 import Navbar from '@/components/ui/Navbar'
 import JobSearch from '@/components/jobs/JobSearch'
@@ -23,7 +24,7 @@ export default function HomePage() {
               Find your next role<br />across East Africa
             </h1>
             <p className="text-stone-500 text-lg max-w-xl mx-auto">
-              Thousands of verified jobs in Kenya, Uganda, Tanzania, Rwanda &amp; Ethiopia
+              Lifting careers across Kenya, Uganda, Tanzania, Rwanda &amp; Ethiopia
             </p>
           </div>
 
@@ -46,8 +47,8 @@ export default function HomePage() {
       <footer className="border-t border-stone-200 mt-16 py-10 bg-white">
         <div className="max-w-5xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
           <div>
-            <span className="font-semibold text-emerald-700 font-serif text-lg">Kazi EA</span>
-            <p className="text-xs text-stone-400 mt-1">East Africa's job platform</p>
+            <span className="font-semibold text-emerald-700 font-serif text-lg">Inua</span>
+            <p className="text-xs text-stone-400 mt-1">East Africa's career platform</p>
           </div>
           <div className="flex gap-6 text-sm text-stone-400">
             <span>Kenya · Uganda · Tanzania · Rwanda · Ethiopia</span>
