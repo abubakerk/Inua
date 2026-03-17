@@ -29,7 +29,7 @@ export default function Navbar() {
   return (
     <nav className="bg-white border-b border-stone-200 sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-        <Link href="/" className="font-semibold text-emerald-700 font-serif text-xl">Kazi EA</Link>
+        <Link href="/" className="font-semibold text-emerald-700 font-serif text-xl">Inua</Link>
         <div className="flex items-center gap-1">
           {loading ? (
             <div className="w-8 h-8 rounded-full bg-stone-100 animate-pulse" />
